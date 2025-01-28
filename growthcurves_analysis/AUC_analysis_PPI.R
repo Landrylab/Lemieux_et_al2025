@@ -6,9 +6,10 @@ library(stringr)
 library(tidyverse)
 library(gtools)
 library(readxl)
+library(cowplot)
 
 # import data
-df_growth <- read.csv('~/PL_projects/PL_papers/Scaffold_Letters/Data/condensed_PPI.csv')[, -1]
+df_growth <- read.csv('~/PL_projects/PL_papers/Scaffold_Letters/Code/Scaffold_PCA/data/condensed_PPI.csv')[, -1]
 
 # remove wells not inoculated
 df_growth <- df_growth[df_growth$strain != 'control', ]
@@ -41,8 +42,8 @@ df_viz$peptide <- na.replace(df_viz$peptide, 'empty')
 df_viz$orientation <- 
 factor(df_viz$orientation, 
        levels = c(TRUE, FALSE), 
-       labels = c('PBD-F[1,2] & peptide-F[3]', 
-                  'peptide-F[1,2] & PBD-F[3]'))
+       labels = c('PBD-F[1,2]_peptide-F[3]', 
+                  'peptide-F[1,2]_PBD-F[3]'))
 
 df_viz[df_viz$PBD == 'SH3' | df_viz$peptide %in% c('sh31', 'sh32', 'sh33', 'sh34'), 'group'] <- 'SH3'
 df_viz[df_viz$PBD == 'PDZ' | df_viz$peptide %in% c('pdz1', 'pdz2', 'pdz3'), 'group'] <- 'PDZ'
@@ -55,7 +56,21 @@ df_viz$group <-
 factor(df_viz$group, 
       levels = c('(-)', 'GBD', 'GRB2', 'PDZ', 'SH3'))
 
-df_viz$comb <- paste0(df_viz$PBD, '.', df_viz$peptide)
+
+# change peptide labelling
+sub_id <-  gsub('sh3', '', df_viz$peptide)
+sh3 <- nchar(sub_id) == 1
+sub_id[sh3]<- paste0('sh3.', sub_id[sh3])
+df_viz$peptide <- sub_id
+
+sub_id <-  gsub('pdz', '', df_viz$peptide)
+pdz <- nchar(sub_id) == 1
+sub_id[pdz]<- paste0('pdz.', sub_id[pdz])
+
+
+df_viz$peptide <- sub_id
+
+df_viz$comb <- paste0(df_viz$PBD, '_', df_viz$peptide)
 
 FigS1A <- 
 ggplot(df_viz[order(df_viz$PBD), ], 
@@ -65,19 +80,18 @@ ggplot(df_viz[order(df_viz$PBD), ],
               alpha = 0.7, width = 0.1, size = 2.5)+
   stat_compare_means(aes(x = comb, y = auc, group = orientation),
                      method = 't.test', label = 'p.signif', hide.ns = TRUE)+
-  scale_color_manual(values = c('#D82632', '#3FA0FF'))+
-  ylab('Area under the curve')+
-  xlab('PBD & peptide combinations')+
+  scale_color_manual(values = c('#F5191CFF', '#36A5AAFF'))+
+  ylab('Corrected area under\n the curve')+
+  xlab('PBD_peptide combinations')+
   theme_classic2()+
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), 
         axis.text = element_text(color = 'black', size = 12), 
         legend.text = element_text(color = 'black', size = 12),
         axis.title = element_text(color = 'black', size = 14),
+        axis.title.x = element_text(vjust = -1),
         strip.text = element_text(color = 'black', size = 12),
         legend.position = 'bottom')+
   guides(color = guide_legend(title = ''))
-
-ggsave('~/PL_projects/PL_papers/Scaffold_Letters/Figures/Supp_Fig1A.png', width = 8, height = 4)
 
 # Keep median information
 med_growth <- unique(df_viz[, c(3:6, 9:14)])
@@ -90,14 +104,14 @@ med_growth$ratio_dgr <- med_growth$med_dgr/neg_growth$med_dgr
 
 # assign the empty_empty observation in both orientation
 x <- med_growth[med_growth$D12 == 'empty' & med_growth$D3 == 'empty', ]
-x[, 'orientation'] <- 'peptide-F[1,2] & PBD-F[3]'
+x[, 'orientation'] <- 'peptide-F[1,2]_PBD-F[3]'
 
 med_growth <- bind_rows(med_growth, x)
 
 # Vizualise auc ratios
 # keep only one orientation for main figure panel, show the second orientation in supplementary
 p2 <- 
-ggplot(med_growth[med_growth$orientation == 'PBD-F[1,2] & peptide-F[3]', ])+
+ggplot(med_growth[med_growth$orientation == 'PBD-F[1,2]_peptide-F[3]', ])+
   geom_tile(aes(PBD, peptide, fill = ratio_auc))+
   scale_fill_viridis_c(option = 'F', direction = 1, breaks = c(0,1,2,3,4,5))+
   theme_classic2()+
@@ -113,11 +127,9 @@ ggplot(med_growth[med_growth$orientation == 'PBD-F[1,2] & peptide-F[3]', ])+
     legend.key.height = unit(1, "lines")
   )))
 
-ggsave('~/PL_projects/PL_papers/Scaffold_Letters/Figures/Fig1XA.png', m1, 
-       width = 4.5, height = 3)  
 
 s1 <- 
-  ggplot(med_growth[med_growth$orientation == 'peptide-F[1,2] & PBD-F[3]', ])+
+  ggplot(med_growth[med_growth$orientation == 'peptide-F[1,2]_PBD-F[3]', ])+
   #facet_grid(cols =vars(orientation), scales = 'free', space = 'free', drop = T)+
   geom_tile(aes(PBD, peptide, fill = ratio_auc))+
   scale_fill_viridis_c(option = 'F', direction = 1, breaks = c(0,1,2,3,4,5))+
@@ -133,11 +145,9 @@ s1 <-
                                  legend.key.width  = unit(10, "lines"),
                                  legend.key.height = unit(1, "lines")
                                )))
-ggsave('~/PL_projects/PL_papers/Scaffold_Letters/Figures/FigS1XA.png', s1, 
-       width = 4.5, height = 3)    
-  
+
 ## Compare PPI score vs affinity
-affinity <- read_excel('~/PL_projects/PL_papers/Scaffold_Letters/Data/ref_affinity.xlsx', col_names = c('Domain', 'motif', 'motif_seq', 'affinity'))
+affinity <- read_excel('~/PL_projects/PL_papers/Scaffold_Letters/Code/Scaffold_PCA/data/ref_affinity.xlsx', col_names = c('Domain', 'motif', 'motif_seq', 'affinity'))
 affinity$affinity <- as.numeric(affinity$affinity)
 
 PPI_vs_affinity <- 
@@ -148,14 +158,15 @@ merge(med_growth,
       all.x = T)
 
 # remove GBD because of low abundance/high spurious binding in vivo showed by the abundance assay
-sub_viz <- PPI_vs_affinity[PPI_vs_affinity$orientation == 'PBD-F[1,2] & peptide-F[3]' & !is.na(PPI_vs_affinity$affinity)
+sub_viz <- PPI_vs_affinity[PPI_vs_affinity$orientation == 'PBD-F[1,2]_peptide-F[3]' & !is.na(PPI_vs_affinity$affinity)
                             , ]
 
 p3 <- 
 ggplot(sub_viz)+
-  geom_point(aes(x = ratio_auc, y = affinity, color = PBD), size = 3)+
+  geom_point(aes(x = ratio_auc, y = affinity, shape = PBD, color= log10(affinity)), size = 3)+
   #stat_cor(aes(x = ratio_auc, y = affinity), label.x = 4, method = 'spearman')+
-  scale_color_manual(values = c('#666666', '#4F1259', '#BD3977','#FC8B62'))+
+  scale_color_gradient(low = 'grey80', high = 'black')+
+  scale_shape_manual(values = c(15,16,17,18))+
   xlab(' PPI score ')+
   ylab(expression(paste('Affinity .',K[d], ' (', mu, 'M)')))+
   scale_y_continuous(transform = 'log10', breaks = c(0.1, 1, 10, 100, 1000), labels = c(0.1, 1, 10, 100, 1000))+
@@ -168,11 +179,10 @@ ggplot(sub_viz)+
         legend.background = element_rect(fill = 'transparent', color = 'black'),
         legend.title = element_blank(),
         legend.position = c(0.72,0.88))+
-  guides(color = guide_legend(nrow = 2))
-  
-ggsave('~/PL_projects/PL_papers/Scaffold_Letters/Figures/Fig1XB.png', Fig1X2,
-       width = 4, height = 3)
+  guides(shape = guide_legend(nrow = 2), 
+         color = 'none')
 
+# Create Fig1  
 p1 <- 
 ggdraw()+
   draw_image('~/PL_projects/PL_papers/Scaffold_Letters/Figures/Fig1A.png')
@@ -184,6 +194,7 @@ plot_grid(p1, p2, p3, nrow = 1, rel_widths = c(0.8,1,1),
 ggsave('~/PL_projects/PL_papers/Scaffold_Letters/Figures/Fig1.png', Fig1,
        width = 10, height =3.3)
 
+# Create FigS1
 FigS1 <- 
 plot_grid(FigS1A, s1, nrow = 1, rel_widths = c(1.5, 0.75), 
           labels = c('A', 'B'), label_fontface = 'plain', align = 'h',axis = 'tb')

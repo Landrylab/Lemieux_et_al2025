@@ -10,7 +10,7 @@ library(cowplot)
 library(svglite)
 
 # import data
-df_growth <- read.csv('~/PL_projects/PL_papers/Scaffold_Letters/Data/condensed_Abundance.csv')[, -1]
+df_growth <- read_csv('~/PL_projects/PL_papers/Scaffold_Letters/Code/Scaffold_PCA/data/condensed_availability.csv')[, -1]
 
 # remove wells not inoculated
 df_growth <- df_growth[df_growth$strain != 'control', ]
@@ -77,7 +77,7 @@ ggplot(df_viz[df_viz$condition =='MTX' , ])+
                      hide.ns = TRUE, method = 't.test', label = 'p.signif', label.y = 210)+
   scale_color_manual(values = c('#51C3CC', '#FF8E32'), 
                      labels = c('Protein-D[3]', 'Protein-D[1,2]'))+
-  ylab('Area under the curve')+
+  ylab('Corrected area \nunder the curve')+
   xlab('Protein')+
   theme_classic2()+
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), 
@@ -87,8 +87,6 @@ ggplot(df_viz[df_viz$condition =='MTX' , ])+
         strip.text = element_text(color = 'black', size = 12),
         legend.position = 'bottom')+
   guides(color = guide_legend(title = ''))
-
-ggsave('~/PL_projects/PL_papers/Scaffold_Letters/Figures/FigS2.png', FigS2,width = 8, height = 4)
 
 # Keep median information
 med_growth <- unique(df_viz[, c(3:6, 9:13)])
@@ -144,14 +142,11 @@ ggplot(med_growth)+
     legend.key.height = unit(10, "lines")
   )))
 
-ggsave('~/PL_projects/PL_papers/Scaffold_Letters/Figures/Fig2XA.png', 
-       width = 4, height = 5.5)  
-
+# Create figure 2
 p1 <- 
 ggdraw()+
-  draw_image('~/PL_projects/PL_papers/Scaffold_Letters/Figures/Abundance PCA(4).png')
+  draw_image('~/PL_projects/PL_papers/Scaffold_Letters/Figures/Fig2A.png')
 
-#Figure 2
 Fig2 <- 
 plot_grid(p1, p2, rel_widths = c(1, 2.2), labels = c('A', 'B'), 
           label_fontface = 'plain')
@@ -159,3 +154,5 @@ plot_grid(p1, p2, rel_widths = c(1, 2.2), labels = c('A', 'B'),
 ggsave('~/PL_projects/PL_papers/Scaffold_Letters/Figures/Fig2.png', Fig2,
        height = 3, width = 10)
   
+ggsave('~/PL_projects/PL_papers/Scaffold_Letters/Figures/FigS2.png', 
+       FigS2, height = 4, width = 8)
