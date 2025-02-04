@@ -76,6 +76,13 @@ ggplot(df_growth)+
 ggsave('~/PL_projects/PL_papers/Scaffold_Letters/Figures/Supp_Fig3XA.png', width = 10, height = 8)
 
 
+x <- subset(df_growth, 
+            scaffold %in% c('PDZ-SH3', 'SH3-PDZ') & 
+            pep_com %in% c('sh3.1_pdz.1') &
+              estradiol == 20)
+
+compare_means(data = x, auc ~scaffold, method = 't.test')
+
 # perform the ratio of auc and dgr vs the empty plasmid
 
 df_ref <- unique(df_growth[df_growth$pep_com == 'empty_empty', c(2,3,4,10,13:16)])
@@ -174,7 +181,7 @@ factor(sub_affinity$comb_affinity,
 p3 <- 
 ggplot(sub_affinity[sub_affinity$scaffold == 'PDZ-SH3', ])+
   facet_grid(cols = vars(scaffold))+
-  geom_jitter(aes(x = comb_affinity, y = auc, color = estradiol), width =0.1)+
+  geom_jitter(aes(x = comb_affinity, y = auc, color = estradiol),position = position_jitterdodge())+
   scale_color_viridis_d(option = 'D', direction = -1)+
   xlab('peptide affinity F[1,2]_F[3]')+
   ylab('Corrected area under\n the curve')+
@@ -211,7 +218,7 @@ sub_affinity$comb_affinity <-
 Supp4 <- 
 ggplot(sub_affinity)+
   facet_grid(cols = vars(scaffold), rows = vars(orientation))+
-  geom_jitter(aes(x = comb_affinity, y = auc, color = estradiol), width =0.1)+
+  geom_jitter(aes(x = comb_affinity, y = auc, color = estradiol), position = position_jitterdodge())+
   scale_color_viridis_d(option = 'D', direction = -1)+
   xlab('peptide affinity F[1,2]_F[3]')+
   ylab('Corrected area under \nthe curve')+

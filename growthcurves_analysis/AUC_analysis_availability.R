@@ -70,9 +70,8 @@ df_viz$protein <- sub_id
 FigS2 <- 
 ggplot(df_viz[df_viz$condition =='MTX' , ])+
   facet_grid(cols = vars(group), scales = 'free_x', space = 'free_x')+
- 
   geom_jitter(aes(x = protein, y = auc, color = strain), 
-              alpha = 0.8, width = 0.1, size = 2.5)+
+              alpha = 0.8, position = position_jitterdodge(jitter.width = 0.2,  dodge.width = 0.4), size = 2.5)+
   stat_compare_means(aes(x =protein, y = auc, group = strain), 
                      hide.ns = TRUE, method = 't.test', label = 'p.signif', label.y = 210)+
   scale_color_manual(values = c('#51C3CC', '#FF8E32'), 

@@ -77,7 +77,7 @@ ggplot(df_viz[order(df_viz$PBD), ],
        aes(x=comb, y = auc))+
   facet_grid(cols = vars(group), scales = 'free_x', space = 'free_x')+
   geom_jitter(aes(color = orientation), 
-              alpha = 0.7, width = 0.1, size = 2.5)+
+              alpha = 0.7, position = position_jitterdodge(), size = 2.5)+
   stat_compare_means(aes(x = comb, y = auc, group = orientation),
                      method = 't.test', label = 'p.signif', hide.ns = TRUE)+
   scale_color_manual(values = c('#F5191CFF', '#36A5AAFF'))+
@@ -165,7 +165,7 @@ p3 <-
 ggplot(sub_viz)+
   geom_point(aes(x = ratio_auc, y = affinity, shape = PBD, color= log10(affinity)), size = 3)+
   #stat_cor(aes(x = ratio_auc, y = affinity), label.x = 4, method = 'spearman')+
-  scale_color_gradient(low = 'grey80', high = 'black')+
+  scale_color_gradient(high = 'grey80', low = 'black')+
   scale_shape_manual(values = c(15,16,17,18))+
   xlab(' PPI score ')+
   ylab(expression(paste('Affinity .',K[d], ' (', mu, 'M)')))+
