@@ -40,10 +40,10 @@ df_viz[ df_viz$D3 %in% peptide, 'protein']<- df_viz[ df_viz$D3 %in% peptide, 'D3
 df_viz$protein <- na.replace(df_viz$protein, 'empty')
 
 df_viz$orientation <- 
-factor(df_viz$orientation, 
-       levels = c(TRUE, FALSE), 
-       labels = c('PBD-F[1,2]_peptide-F[3]', 
-                  'peptide-F[1,2]_PBD-F[3]'))
+  factor(df_viz$orientation, 
+         levels = c(TRUE, FALSE), 
+         labels = c('PBD-F[1,2]_peptide-F[3]', 
+                    'peptide-F[1,2]_PBD-F[3]'))
 
 df_viz[df_viz$protein == 'SH3' | df_viz$protein %in% c('sh31', 'sh32', 'sh33', 'sh34'), 'group'] <- 'SH3'
 df_viz[df_viz$protein == 'PDZ' | df_viz$protein %in% c('pdz1', 'pdz2', 'pdz3'), 'group'] <- 'PDZ'
@@ -53,8 +53,8 @@ df_viz[df_viz$protein == 'GRB2' | df_viz$protein == 'gab2', 'group'] <- 'GRB2'
 df_viz$group <- na.replace(df_viz$group, replace = '(+)')
 
 df_viz$group <- 
-factor(df_viz$group, 
-      levels = c('(+)', 'GBD', 'GRB2', 'PDZ', 'SH3'))
+  factor(df_viz$group, 
+         levels = c('(+)', 'GBD', 'GRB2', 'PDZ', 'SH3'))
 
 # change peptide labelling
 sub_id <-  gsub('sh3', '', df_viz$protein)
@@ -67,8 +67,9 @@ pdz <- nchar(sub_id) == 1
 sub_id[pdz]<- paste0('pdz.', sub_id[pdz])
 df_viz$protein <- sub_id
 
+# create Figure S2
 FigS2 <- 
-ggplot(df_viz[df_viz$condition =='MTX' , ])+
+  ggplot(df_viz[df_viz$condition =='MTX' , ])+
   facet_grid(cols = vars(group), scales = 'free_x', space = 'free_x')+
   geom_jitter(aes(x = protein, y = auc, color = strain), 
               alpha = 0.8, position = position_jitterdodge(jitter.width = 0.2,  dodge.width = 0.4), size = 2.5)+
@@ -94,7 +95,7 @@ med_growth <- unique(df_viz[, c(3:6, 9:13)])
 med_growth <- med_growth[med_growth$condition == 'MTX', ]
 
 neg_growth <- med_growth[med_growth$D12 =='empty' & med_growth$D3 =='empty' & med_growth$condition =='MTX', ]
-  
+
 D12_neg <- unlist(neg_growth[neg_growth$strain=='BY4741-mVenus-D3', "med_auc" ])
 D3_neg <- unlist(neg_growth[neg_growth$strain=='BY4741-mVenus-D12', "med_auc" ])
 
@@ -120,7 +121,7 @@ med_growth$type <- na.replace(med_growth$type, '(+)')
 # Vizualize auc ratios
 # keep only one orientation for main figure panel, show the second orientation in supplementary
 p2 <- 
-ggplot(med_growth)+
+  ggplot(med_growth)+
   facet_grid(cols = vars(type), scale = 'free_x', space = 'free')+
   geom_tile(aes(protein, DHFR, fill = ratio_dgr))+
   scale_fill_viridis_c(option = 'E', direction = 1)+
@@ -137,21 +138,21 @@ ggplot(med_growth)+
   guides(fill = guide_colorbar(title = 'Availability \nscore',
                                
                                theme = theme(
-    legend.key.width  = unit(1.5, "lines"),
-    legend.key.height = unit(10, "lines")
-  )))
+                                 legend.key.width  = unit(1.5, "lines"),
+                                 legend.key.height = unit(10, "lines")
+                               )))
 
 # Create figure 2
 p1 <- 
-ggdraw()+
+  ggdraw()+
   draw_image('~/PL_projects/PL_papers/Scaffold_Letters/Figures/Fig2A.png')
 
 Fig2 <- 
-plot_grid(p1, p2, rel_widths = c(1, 2.2), labels = c('A', 'B'), 
-          label_fontface = 'plain')
+  plot_grid(p1, p2, rel_widths = c(1, 2.2), labels = c('A', 'B'), 
+            label_fontface = 'plain')
 
 ggsave('~/PL_projects/PL_papers/Scaffold_Letters/Figures/Fig2.png', Fig2,
        height = 3, width = 10)
-  
+
 ggsave('~/PL_projects/PL_papers/Scaffold_Letters/Figures/FigS2.png', 
        FigS2, height = 4, width = 8)

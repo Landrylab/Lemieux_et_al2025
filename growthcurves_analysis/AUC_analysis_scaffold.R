@@ -1,3 +1,4 @@
+# Script to analyse and plot the result of the Scaffold PCA
 #import package
 library(ggplot2)
 library(ggpubr)
@@ -12,6 +13,7 @@ library(tidyverse)
 #import data
 df_growth <- read.csv('~/PL_projects/PL_papers/Scaffold_Letters/Code/Scaffold_PCA/data/condensed_scaffold.csv')
 
+# re id the peptides
 sub_id <-  gsub('sh3', '', df_growth$D12)
 sh3 <- nchar(sub_id) == 1
 sub_id[sh3]<- paste0('sh3.', sub_id[sh3])
@@ -46,8 +48,8 @@ df_growth%<>%
 
 
 df_growth$estradiol <- factor(df_growth$estradiol, 
-                                 levels = c(0,5,10,20), 
-                                 labels = c(0,5,10,20))
+                              levels = c(0,5,10,20), 
+                              labels = c(0,5,10,20))
 
 # associate the scaffold structure to the strain
 df_growth$scaffold <- 
@@ -75,10 +77,10 @@ ggplot(df_growth)+
 
 ggsave('~/PL_projects/PL_papers/Scaffold_Letters/Figures/Supp_Fig3XA.png', width = 10, height = 8)
 
-
+# t-test to compare the PDZ-SH3 and SH3-PDZ scaffold with the sh3.1_pdz.1 peptide combination
 x <- subset(df_growth, 
             scaffold %in% c('PDZ-SH3', 'SH3-PDZ') & 
-            pep_com %in% c('sh3.1_pdz.1') &
+              pep_com %in% c('sh3.1_pdz.1') &
               estradiol == 20)
 
 compare_means(data = x, auc ~scaffold, method = 't.test')
@@ -92,7 +94,7 @@ colnames(df_ref) <- c("strain", "D12","D3", "estradiol",
 
 df_growth <-
   merge(df_growth, df_ref[,-c(2,3,5,8)], 
-                   by = c('strain', 'estradiol'))
+        by = c('strain', 'estradiol'))
 
 df_growth%<>%
   mutate(r_auc = med_auc/med_auc_ref, 
@@ -107,7 +109,7 @@ res_growth <- unique(df_growth[, c(1,2,4,5,13:22)])
 sub_pep <- c('empty_empty', 'pdz.1_sh3.1', 'pdz.1_sh3.3', 'pdz.3_sh3.1', 'pdz.3_sh3.3','sh3.1_pdz.1', 'sh3.1_pdz.3', 'sh3.3_pdz.1', 'sh3.3_pdz.3')
 
 p2 <- 
-ggplot(res_growth[res_growth$pep_com %in% sub_pep & res_growth$estradiol ==20, ])+
+  ggplot(res_growth[res_growth$pep_com %in% sub_pep & res_growth$estradiol ==20, ])+
   geom_tile(aes(y = pep_com, x = scaffold, fill = r_auc))+
   theme_classic2()+
   ylab('peptides F[1,2]_F[3]')+
@@ -126,10 +128,10 @@ ggplot(res_growth[res_growth$pep_com %in% sub_pep & res_growth$estradiol ==20, ]
                                  legend.key.height = unit(1.5, "lines")
                                )))
 
-ggsave('~/PL_projects/PL_papers/Scaffold_Letters/Figures/Fig3A.png', height = 4, width = 6)
+#ggsave('~/PL_projects/PL_papers/Scaffold_Letters/Figures/Fig3A.png', height = 4, width = 6)
 
 # Comparison with affinity PBD-peptide
-affinity <- read_excel('~/PL_projects/PL_papers/Scaffold_Letters/Code/Scaffold_PCA/data/ref_affinity.xlsx', col_names = c('PBD', 'peptide', 'peptide_seq', 'affinity'))
+affinity <- read_excel('~/PL_projects/PL_papers/Scaffold_Letters/Code/Scaffold_PCA/data/ref_affinity.xlsx')
 affinity$affinity <- as.numeric(affinity$affinity)
 
 # Classify Kd in category of affinity
@@ -149,16 +151,16 @@ affinity <- bind_rows(high_aff,med_aff, low_aff)
 
 
 res_affinity <- 
-merge(df_growth, 
-      affinity[, c(2,4,5)], 
-      by.x = 'D12', 
-      by.y = 'peptide')
+  merge(df_growth, 
+        affinity[, c(2,4,5)], 
+        by.x = 'D12', 
+        by.y = 'peptide')
 
 res_affinity <- 
-merge(res_affinity, 
-      affinity[, c(2,4,5)], 
-      by.x = 'D3', 
-      by.y = 'peptide')
+  merge(res_affinity, 
+        affinity[, c(2,4,5)], 
+        by.x = 'D3', 
+        by.y = 'peptide')
 
 colnames(res_affinity)[c(23,25)]<- c('affinity_D12', 'affinity_D3')
 
@@ -175,11 +177,11 @@ sub_affinity <- res_affinity[grepl('sh3', res_affinity$D12) & !(res_affinity$str
 sub_affinity$comb_affinity <- str_c(sub_affinity$type_affinity.x, sub_affinity$type_affinity.y, sep = '_')
 
 sub_affinity$comb_affinity <- 
-factor(sub_affinity$comb_affinity, 
-       levels = c('high_high', 'medium_high', 'high_low', 'low_high', 'medium_low', 'low_low'))
+  factor(sub_affinity$comb_affinity, 
+         levels = c('high_high', 'medium_high', 'high_low', 'low_high', 'medium_low', 'low_low'))
 
 p3 <- 
-ggplot(sub_affinity[sub_affinity$scaffold == 'PDZ-SH3', ])+
+  ggplot(sub_affinity[sub_affinity$scaffold == 'PDZ-SH3', ])+
   facet_grid(cols = vars(scaffold))+
   geom_jitter(aes(x = comb_affinity, y = auc, color = estradiol),position = position_jitterdodge())+
   scale_color_viridis_d(option = 'D', direction = -1)+
@@ -187,7 +189,8 @@ ggplot(sub_affinity[sub_affinity$scaffold == 'PDZ-SH3', ])+
   ylab('Corrected area under\n the curve')+
   theme_classic2()+
   guides(color = guide_legend(title = '[β-Estradiol] (nM)', 
-                              nrow = 2))+
+                              nrow = 2, 
+                              position = 'inside'))+
   theme(axis.text.x = element_text(angle = 28, hjust = 1, vjust = 1), 
         axis.text = element_text(color = 'black', size = 12), 
         legend.text = element_text(color = 'black', size = 12),
@@ -195,8 +198,8 @@ ggplot(sub_affinity[sub_affinity$scaffold == 'PDZ-SH3', ])+
         axis.title.x = element_text(vjust =  -1.4),
         strip.text = element_text(color = 'black', size = 12),
         legend.background = element_rect(fill = 'transparent', color = 'transparent'),
-        legend.position = c(0.75, 0.8))
-  
+        legend.position.inside = c(0.75, 0.8))
+
 # plot the scaffold signal vs affinity categories
 # for all combinations
 
@@ -216,7 +219,7 @@ sub_affinity$comb_affinity <-
 
 
 Supp4 <- 
-ggplot(sub_affinity)+
+  ggplot(sub_affinity)+
   facet_grid(cols = vars(scaffold), rows = vars(orientation))+
   geom_jitter(aes(x = comb_affinity, y = auc, color = estradiol), position = position_jitterdodge())+
   scale_color_viridis_d(option = 'D', direction = -1)+
@@ -240,13 +243,13 @@ ggsave('~/PL_projects/PL_papers/Scaffold_Letters/Figures/FigS4.png', Supp4, widt
 # Create figure 3
 
 p1 <- 
-ggdraw()+
+  ggdraw()+
   draw_image('~/PL_projects/PL_papers/Scaffold_Letters/Figures/Fig3A.png')
 FigBC <- plot_grid(p2, p3, align = 'h', axis = 'b', rel_widths = c(1.2,1), labels = c('B', 'C'), label_fontface = 'plain')
 
 
 Fig3 <- 
-plot_grid(p1, FigBC, nrow = 1, ncol=2,  rel_widths = c(1, 2.4),
-          labels = c('A', '', ''), label_fontface = 'plain')
+  plot_grid(p1, FigBC, nrow = 1, ncol=2,  rel_widths = c(1, 2.4),
+            labels = c('A', '', ''), label_fontface = 'plain')
 
 ggsave('~/PL_projects/PL_papers/Scaffold_Letters/Figures/Fig3.png', Fig3, width = 12, height = 5)
