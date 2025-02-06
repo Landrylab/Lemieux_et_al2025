@@ -13,6 +13,6 @@ Contains the R scripts to analyse the 3 PCA experiments \
 ## /supplementary_material
 Contains the Supplementary File 1 - detailed methods - and Supplementary File 2 - supplementary Tables 1 to 5. \
 	Supplementary_File1.pdf \
-	Supplementary_File2.xlsx \
+	Supplementary_File2.xlsx 
 
 See Lemieux et al. 2025 for further details. 
