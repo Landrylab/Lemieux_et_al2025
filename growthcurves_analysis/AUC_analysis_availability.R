@@ -76,8 +76,8 @@ FigS2 <-
   stat_compare_means(aes(x =protein, y = auc, group = strain), 
                      hide.ns = TRUE, method = 't.test', label = 'p.signif', label.y = 210)+
   scale_color_manual(values = c('#51C3CC', '#FF8E32'), 
-                     labels = c('Protein-D[3]', 'Protein-D[1,2]'))+
-  ylab('Corrected area \nunder the curve')+
+                     labels = c('F[3]', 'F[1,2]'))+
+  ylab('PCA signal (corrected AUC)')+
   xlab('Protein')+
   theme_classic2()+
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), 

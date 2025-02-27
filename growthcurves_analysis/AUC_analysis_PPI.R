@@ -80,11 +80,36 @@ FigS1A <-
   geom_jitter(aes(color = orientation), 
               alpha = 0.7, position = position_jitterdodge(), size = 2.5)+
   stat_compare_means(aes(x = comb, y = auc, group = orientation),
-                     method = 't.test', label = 'p.signif', hide.ns = TRUE)+
+                     method = 't.test', label = 'p.signif',hide.ns = TRUE)+
   scale_color_manual(values = c('#F5191CFF', '#36A5AAFF'))+
-  ylab('Corrected area under\n the curve')+
+  ylab('PCA signal (corrected AUC)')+
   xlab('PBD_peptide combinations')+
   theme_classic2()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), 
+        axis.text = element_text(color = 'black', size = 12), 
+        legend.text = element_text(color = 'black', size = 12),
+        axis.title = element_text(color = 'black', size = 14),
+        axis.title.x = element_text(vjust = -1),
+        strip.text = element_text(color = 'black', size = 12),
+        legend.position = 'bottom')+
+  guides(color = guide_legend(title = ''))
+
+
+ggplot()+
+  #facet_grid(cols = vars(group), scales = 'free_x', space = 'free_x')+
+  geom_point(data = df_viz[df_viz$comb !='empty_empty', ], 
+            aes(x = dgr, y = auc), 
+              alpha = 0.7, size = 2.5)+
+  geom_point(data = df_viz[df_viz$comb =='empty_empty', ], 
+             aes(x = dgr, y = auc), 
+             alpha = 0.7, size = 2.5, color = 'red')+
+  #stat_compare_means(aes(x = comb, y = auc, group = orientation),
+   #                  method = 't.test', label = 'p.signif',hide.ns = TRUE)+
+  #scale_color_manual(values = c('#F5191CFF', '#36A5AAFF'))+
+  ylab('Corrected AUC')+
+  xlab('Derivative growth rate')+
+  theme_classic2()+
+#  xlim(-0.25, 0.25)+
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), 
         axis.text = element_text(color = 'black', size = 12), 
         legend.text = element_text(color = 'black', size = 12),
@@ -114,7 +139,7 @@ med_growth <- bind_rows(med_growth, x)
 p2 <- 
   ggplot(med_growth[med_growth$orientation == 'PBD-F[1,2]_peptide-F[3]', ])+
   geom_tile(aes(PBD, peptide, fill = ratio_auc))+
-  scale_fill_viridis_c(option = 'F', direction = 1, breaks = c(0,1,2,3,4,5))+
+  scale_fill_viridis_c(option = 'F', direction = 1, breaks = c(0,1,2,3,4,5), end = 0.95)+
   theme_classic2()+
   theme(axis.text.x = element_text(angle = 0, hjust = 0.5, vjust = 0.5), 
         axis.text = element_text(color = 'black', size = 12), 
@@ -133,7 +158,7 @@ s1 <-
   ggplot(med_growth[med_growth$orientation == 'peptide-F[1,2]_PBD-F[3]', ])+
   #facet_grid(cols =vars(orientation), scales = 'free', space = 'free', drop = T)+
   geom_tile(aes(PBD, peptide, fill = ratio_auc))+
-  scale_fill_viridis_c(option = 'F', direction = 1, breaks = c(0,1,2,3,4,5))+
+  scale_fill_viridis_c(option = 'F', direction = 1, breaks = c(0,1,2,3,4,5), end = 0.95)+
   theme_classic2()+
   theme(axis.text.x = element_text(angle = 0, hjust = 0.5, vjust = 0.5), 
         axis.text = element_text(color = 'black', size = 12), 
@@ -164,7 +189,7 @@ sub_viz <- PPI_vs_affinity[PPI_vs_affinity$orientation == 'PBD-F[1,2]_peptide-F[
 
 p3 <- 
   ggplot(sub_viz)+
-  geom_point(aes(x = ratio_auc, y = affinity, shape = PBD, color= log10(affinity)), size = 3)+
+  geom_point(aes(x = ratio_auc, y = affinity, shape = PBD), size = 3)+
   #stat_cor(aes(x = ratio_auc, y = affinity), label.x = 4, method = 'spearman')+
   scale_color_gradient(high = 'grey80', low = 'black')+
   scale_shape_manual(values = c(15,16,17,18))+

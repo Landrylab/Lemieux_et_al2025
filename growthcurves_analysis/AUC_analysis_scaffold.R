@@ -64,7 +64,7 @@ ggplot(df_growth)+
   facet_wrap(vars(pep_com),nrow = 3, ncol = 7)+
   geom_jitter(aes(y = auc, x = scaffold, color = estradiol), width = 0.1, size =2,alpha = 0.7)+
   scale_color_viridis_d(direction = -1)+
-  ylab('Corrected area under \nthe curve')+
+  ylab('PCA signal (corrected AUC)')+
   xlab('Scaffold system')+
   theme_classic2()+
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), 
@@ -186,7 +186,7 @@ p3 <-
   geom_jitter(aes(x = comb_affinity, y = auc, color = estradiol),position = position_jitterdodge())+
   scale_color_viridis_d(option = 'D', direction = -1)+
   xlab('peptide affinity F[1,2]_F[3]')+
-  ylab('Corrected area under\n the curve')+
+  ylab('PCA signal (corrected AUC)')+
   theme_classic2()+
   guides(color = guide_legend(title = '[β-Estradiol] (nM)', 
                               nrow = 2, 
@@ -224,10 +224,11 @@ Supp4 <-
   geom_jitter(aes(x = comb_affinity, y = auc, color = estradiol), position = position_jitterdodge())+
   scale_color_viridis_d(option = 'D', direction = -1)+
   xlab('peptide affinity F[1,2]_F[3]')+
-  ylab('Corrected area under \nthe curve')+
+  ylab('PCA signal(corrected AUC)')+
   theme_classic2()+
   guides(color = guide_legend(title = '[β-Estradiol] (nM)', 
-                              nrow = 2))+
+                              nrow = 2, 
+                              position = 'inside'))+
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), 
         axis.text = element_text(color = 'black', size = 12), 
         legend.text = element_text(color = 'black', size = 12),
@@ -235,7 +236,7 @@ Supp4 <-
         axis.title.x = element_text(vjust =  -1),
         strip.text = element_text(color = 'black', size = 12),
         legend.background = element_rect(fill = 'transparent', color = 'transparent'),
-        legend.position = c(0.93, 0.85))
+        legend.position.inside  = c(0.93, 0.85))
 
 ggsave('~/PL_projects/PL_papers/Scaffold_Letters/Figures/FigS4.png', Supp4, width = 12, height = 6)
 
@@ -245,7 +246,7 @@ ggsave('~/PL_projects/PL_papers/Scaffold_Letters/Figures/FigS4.png', Supp4, widt
 p1 <- 
   ggdraw()+
   draw_image('~/PL_projects/PL_papers/Scaffold_Letters/Figures/Fig3A.png')
-FigBC <- plot_grid(p2, p3, align = 'h', axis = 'b', rel_widths = c(1.2,1), labels = c('B', 'C'), label_fontface = 'plain')
+FigBC <- plot_grid(p3, p2, align = 'h', axis = 'b', rel_widths = c(1,1.2), labels = c('B', 'C'), label_fontface = 'plain')
 
 
 Fig3 <- 
