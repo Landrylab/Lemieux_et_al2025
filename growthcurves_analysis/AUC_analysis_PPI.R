@@ -81,7 +81,7 @@ FigS1A <-
               alpha = 0.7, position = position_jitterdodge(), size = 2.5)+
   stat_compare_means(aes(x = comb, y = auc, group = orientation),
                      method = 't.test', label = 'p.signif',hide.ns = TRUE)+
-  scale_color_manual(values = c('#F5191CFF', '#36A5AAFF'))+
+  scale_color_manual(values = c('#F5191CFF', '#36A5AAFF'), labels = c('F[1,2]-PBD_F[3]-peptide', 'F[1,2]-peptide_F[3]-PBD'))+
   ylab('PCA signal (corrected AUC)')+
   xlab('PBD_peptide combinations')+
   theme_classic2()+
@@ -189,13 +189,14 @@ sub_viz <- PPI_vs_affinity[PPI_vs_affinity$orientation == 'PBD-F[1,2]_peptide-F[
 
 p3 <- 
   ggplot(sub_viz)+
-  geom_point(aes(x = ratio_auc, y = affinity, shape = PBD), size = 3)+
+  geom_point(aes(y = ratio_auc, x = affinity, shape = PBD), size = 3)+
   #stat_cor(aes(x = ratio_auc, y = affinity), label.x = 4, method = 'spearman')+
   scale_color_gradient(high = 'grey80', low = 'black')+
   scale_shape_manual(values = c(15,16,17,18))+
-  xlab(' PPI score ')+
-  ylab(expression(paste('Affinity .',K[d], ' (', mu, 'M)')))+
-  scale_y_continuous(transform = 'log10', breaks = c(0.1, 1, 10, 100, 1000), labels = c(0.1, 1, 10, 100, 1000))+
+  ylab(' PPI score ')+
+  xlab(expression(paste('Affinity ',K[d], ' (', mu, 'M)')))+
+  scale_x_continuous(transform = 'log10', breaks = c(0.1, 1, 10, 100, 1000),
+                     labels = c(0.1, 1, 10, 100, 1000), limits = c(0.1, 1000))+
   theme_classic2()+
   theme(axis.text.x = element_text(angle = 0, hjust = 0.5, vjust = 0.5), 
         axis.text = element_text(color = 'black', size = 12), 
@@ -203,9 +204,9 @@ p3 <-
         axis.title = element_text(color = 'black', size = 14),
         strip.text = element_text(color = 'black', size = 12),
         legend.background = element_rect(fill = 'transparent', color = 'black'),
-        legend.title = element_blank(),
-        legend.position.inside= c(0.75,0.87))+
-  guides(shape = guide_legend(nrow = 2, position = 'inside'), 
+        legend.title = element_blank())+#,
+        #legend.position.inside= c(0.75,0.75))+
+  guides(shape = guide_legend(nrow = 1, position = 'top'), 
          color = 'none')
 
 # Create Fig1  
@@ -214,7 +215,7 @@ p1 <-
   draw_image('~/PL_projects/PL_papers/Scaffold_Letters/Figures/Fig1A.png')
 
 Fig1 <- 
-  plot_grid(p1, p2, p3, nrow = 1, rel_widths = c(0.8,1,1), 
+  plot_grid(p1, p2, p3, nrow = 1, rel_widths = c(0.8,1,1), align = 'h', axis = 'b', 
             labels = c('A', 'B', 'C'), label_fontface = 'plain')
 
 ggsave('~/PL_projects/PL_papers/Scaffold_Letters/Figures/Fig1.png', Fig1,
